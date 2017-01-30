@@ -22,7 +22,7 @@ end
 
 --Create Loss Function
 local criterion = nn.MSECriterion():type(dtype)
-criterion.sizeAverage = false
+criterion.sizeAverage = true
 
 --Create VDSR conv neural network
 --http://cv.snu.ac.kr/research/VDSR/VDSR_CVPR2016.pdf
@@ -74,7 +74,7 @@ setBatch()
 params, gradParams = vdsrcnn:getParameters()
 
 local optimState = {learningRate = 0.1, weightDecay = 0.0001, momentum = 0.9}
-local cnorm = 0.001 * optimState.learningRate --Gradient Clipping (c * Initial_Learning_Rate)
+local cnorm = 0.02 * optimState.learningRate --Gradient Clipping (c * Initial_Learning_Rate)
 
 local showlossevery = 100;
 local loss = 1;
@@ -113,6 +113,8 @@ end
 local decreaseRate = 0.1
 
 --Saves a ground truth residual for testing
+local Truthinput = SSN:forward((tlr):type('torch.FloatTensor'))
+image.save("test/TruthI.png", Truthinput:add(0.5))
 local Truthdiff = thr:clone():csub(tlr)
 image.save("test/Truth.png", Truthdiff:add(0.5))
 
@@ -120,8 +122,8 @@ image.save("test/Truth.png", Truthdiff:add(0.5))
 --image.save("test/TestInput.png", x[1])
 --image.save("test/TestOutput.png", y[1])
 
-local Truthinput = SSN:forward(x[1]:type('torch.FloatTensor'))
-image.save("test/TestGI1.png", Truthinput:add(0.5))
+local Truthinput2 = SSN:forward(x[1]:type('torch.FloatTensor'))
+image.save("test/TestGI1.png", Truthinput2:add(0.5))
 
 local Truthdiff2 = y[1]:clone():csub(x[1])
 image.save("test/TestGT1.png", Truthdiff2:add(0.5))
