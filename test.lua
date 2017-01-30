@@ -27,7 +27,7 @@ local trainImg = image.scale(smallImg, "*2", "bicubic")
 
 local trainLRY = image.rgb2y(trainImg):type(dtype)
 local trainLR = image.rgb2yuv(trainImg):type(dtype)
-local trainDiff = vdsrcnn:forward(trainLRY:add(-0.5))
+local trainDiff = vdsrcnn:forward(trainLRY)
 
 local trainSR = trainLR
 

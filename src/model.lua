@@ -32,7 +32,10 @@ function model.create(depth)
 
 	--Start of model
 	local vdsrcnn = nn.Sequential()
-
+	
+	local ker = torch.ones(5)
+	
+	vdsrcnn.add(nn.SpatialSubtractiveNormalization(1,ker))
 	vdsrcnn:add(InConvolution())
 	vdsrcnn:add(nonLinear())
 	for layers = 1, depth do
