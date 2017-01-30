@@ -1,6 +1,7 @@
 require 'torch'
 require 'nn'
 local nninit = require 'nninit'
+require 'src/PixelShuffle'
 
 --Private Methods
 local getBias = function(nnl)
@@ -45,9 +46,9 @@ function model.create(depth)
 	vdsrcnn:add(nonLinear())
 	vdsrcnn:add(nn.SpatialConvolutionMM(12, 12, 3, 3, 1, 1, 1, 1))
 	vdsrcnn:add(nonLinear())
-	vdsrcnn:add(nn.SpatialConvolutionMM(12, 56, 1, 1, 1, 1, 0, 0))
+	vdsrcnn:add(nn.SpatialConvolutionMM(12, 2*2, 1, 1, 1, 1, 0, 0))
 	vdsrcnn:add(nonLinear())
-	vdsrcnn:add(nn.SpatialFullConvolution(56, 1, 9, 9, 2, 2, 4, 4, 1, 1))
+	vdsrcnn:add(nn.PixelShuffle(2))
 
 
 	local function weights_init(m)

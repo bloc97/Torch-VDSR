@@ -1,5 +1,6 @@
 require 'torch'
 require 'nn'
+require 'src/PixelShuffle'
 require 'image'
 require 'cltorch'
 require 'clnn'
