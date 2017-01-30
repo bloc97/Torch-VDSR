@@ -89,7 +89,7 @@ function f(params)
 	--vdsrcnn:zeroGradParameters();
 	gradParams:zero()
 	
-	local imagein = s:clone():csub(0.5) --Removing 0.5 to normalise the input images to [-0.5, 0.5] helps prevent gradient explosion
+	local imagein = s --Removing 0.5 to normalise the input images to [-0.5, 0.5] helps prevent gradient explosion
 	--if the image has values of [0, 1], all the gradients initially will be positive at the same time
 	--TODO: Better to substract with the mean of all images
 	
@@ -138,7 +138,7 @@ for iter = 1, 30000 do
 	if ((iter%showlossevery == 0) or (iter%20 == 0 and iter < 200) or (iter < 20)) then --Print the training loss and an example residual output to compare with ground truth
 		print("Epoch " .. epoch .. " Iteration " .. iter .. " Training Loss " .. loss)
 		
-		local epochdiff = vdsrcnn:forward(ts:clone():csub(0.5))
+		local epochdiff = vdsrcnn:forward(ts)
 		image.save("test/" .. iter .. "resid.png", epochdiff:add(0.5))
 	end
 	
