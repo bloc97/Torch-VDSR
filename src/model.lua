@@ -16,7 +16,7 @@ local HiddenConvolution = function()
 end
 
 local OutConvolution = function()
-	return nn.SpatialConvolutionMM(64, 1, 3, 3, 1, 1, 1, 1)
+	return nn.SpatialFullConvolution(64, 1, 3, 3, 1, 1, 1, 1)
 end
 
 local nonLinear = function()
@@ -33,13 +33,21 @@ function model.create(depth)
 	--Start of model
 	local vdsrcnn = nn.Sequential()
 
-	vdsrcnn:add(InConvolution())
+	vdsrcnn:add(nn.SpatialConvolutionMM(1, 56, 5, 5, 1, 1, 2, 2))
 	vdsrcnn:add(nonLinear())
-	for layers = 1, depth do
-		vdsrcnn:add(HiddenConvolution())
-		vdsrcnn:add(nonLinear()) --ReLU or ELU
-	end
-	vdsrcnn:add(OutConvolution())
+	vdsrcnn:add(nn.SpatialConvolutionMM(56, 12, 1, 1, 1, 1, 0, 0))
+	vdsrcnn:add(nonLinear())
+	vdsrcnn:add(nn.SpatialConvolutionMM(12, 12, 3, 3, 1, 1, 1, 1))
+	vdsrcnn:add(nonLinear())
+	vdsrcnn:add(nn.SpatialConvolutionMM(12, 12, 3, 3, 1, 1, 1, 1))
+	vdsrcnn:add(nonLinear())
+	vdsrcnn:add(nn.SpatialConvolutionMM(12, 12, 3, 3, 1, 1, 1, 1))
+	vdsrcnn:add(nonLinear())
+	vdsrcnn:add(nn.SpatialConvolutionMM(12, 12, 3, 3, 1, 1, 1, 1))
+	vdsrcnn:add(nonLinear())
+	vdsrcnn:add(nn.SpatialConvolutionMM(12, 56, 1, 1, 1, 1, 0, 0))
+	vdsrcnn:add(nonLinear())
+	vdsrcnn:add(nn.SpatialFullConvolution(56, 1, 9, 9, 2, 2, 4, 4, 1, 1))
 
 
 	local function weights_init(m)

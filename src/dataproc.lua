@@ -58,7 +58,11 @@ function dataproc.randCrop(img, img2, w, h)
 	local x = math.random(0, width-cwidth)
 	local y = math.random(0, height-cheight)
 	
-	return image.crop(img, x, y, x+cwidth, y+cheight), image.crop(img2, x, y, x+cwidth, y+cheight)
+	local hr = image.crop(img, x, y, x+cwidth, y+cheight)
+	local sr = image.crop(img2, x, y, x+cwidth, y+cheight)
+	local s = image.scale(hr, "*1/2")
+	
+	return hr, sr, s
 end
 
 function dataproc.getBatch(hr, lr, n, w, h)
@@ -73,13 +77,15 @@ function dataproc.getBatch(hr, lr, n, w, h)
 	bhr = {}
 	blr = {}
 	
+	bs = {}
+	
 	for i=1, batchn do
 		local k = ((i-1)%tsize)+1
-		bhr[i], blr[i] = dataproc.randCrop(hr[k], lr[k], cwidth, cheight)
+		bhr[i], blr[i], bs[i] = dataproc.randCrop(hr[k], lr[k], cwidth, cheight)
 		
 	end
 	
-	return bhr, blr
+	return bhr, blr, bs
 	
 end
 

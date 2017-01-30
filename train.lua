@@ -11,7 +11,7 @@ local dataproc = require 'src/dataproc'
 --Use FloatTensor for faster training
 local dtype = 'torch.FloatTensor'
 
-local useOpenCl = true;
+local useOpenCl = false;
 
 --If we are using opencl, we change the tensor dtype to "ClTensor" using :cl();
 if (useOpenCl) then
@@ -54,15 +54,18 @@ local hr, lr = dataproc.getImages(imagesn)
 local timg = image.load("train/test.png", 3, "float")
 local thr = image.rgb2y(timg):type(dtype)
 local tlr = image.rgb2y(image.scale(image.scale(timg, "*1/2"), thr:size(3), thr:size(2), "bicubic")):type(dtype)
+local ts = image.rgb2y(image.scale(timg, "*1/2")):type(dtype)
 
+local s;
 local x;
 local y;
 
 
 function setBatch()
-	ay, ax = dataproc.getBatch(hr, lr, n, w, h)
+	ay, ax, as = dataproc.getBatch(hr, lr, n, w, h)
 	x = TableToTensor(ax):type(dtype)
 	y = TableToTensor(ay):type(dtype)
+	s = TableToTensor(as):type(dtype)
 end
 
 setBatch()
@@ -86,7 +89,7 @@ function f(params)
 	--vdsrcnn:zeroGradParameters();
 	gradParams:zero()
 	
-	local imagein = x:clone():csub(0.5) --Removing 0.5 to normalise the input images to [-0.5, 0.5] helps prevent gradient explosion
+	local imagein = s:clone():csub(0.5) --Removing 0.5 to normalise the input images to [-0.5, 0.5] helps prevent gradient explosion
 	--if the image has values of [0, 1], all the gradients initially will be positive at the same time
 	--TODO: Better to substract with the mean of all images
 	
@@ -135,7 +138,7 @@ for iter = 1, 30000 do
 	if ((iter%showlossevery == 0) or (iter%20 == 0 and iter < 200) or (iter < 20)) then --Print the training loss and an example residual output to compare with ground truth
 		print("Epoch " .. epoch .. " Iteration " .. iter .. " Training Loss " .. loss)
 		
-		local epochdiff = vdsrcnn:forward(tlr:clone():csub(0.5))
+		local epochdiff = vdsrcnn:forward(ts:clone():csub(0.5))
 		image.save("test/" .. iter .. "resid.png", epochdiff:add(0.5))
 	end
 	
