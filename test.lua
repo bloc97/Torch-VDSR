@@ -32,7 +32,7 @@ local trainDiff = vdsrcnn:forward(trainLRY)
 
 local trainSR = trainLR
 
-trainSR[1]:add(trainDiff[1])
+trainSR[1] = trainDiff[1]
 
 image.save(name .. "x2.png", image.yuv2rgb(trainSR))
 

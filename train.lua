@@ -62,8 +62,8 @@ local y;
 
 
 function setBatch()
-	ay, ax, as = dataproc.getBatch(hr, lr, batchsize)
-	--x = TableToTensor(ax):type(dtype)
+	ay, ax, as = dataproc.getBatch(hr, lr, n, w, h)
+	x = TableToTensor(ax):type(dtype)
 	y = TableToTensor(ay):type(dtype)
 	s = TableToTensor(as):type(dtype)
 end
@@ -77,8 +77,8 @@ setBatch()
 
 params, gradParams = vdsrcnn:getParameters()
 
-local optimState = {learningRate = 0.01, weightDecay = 0.01, momentum = 0.9}
-local cnorm = 0.01 * optimState.learningRate --Gradient Clipping (c * Initial_Learning_Rate)
+local optimState = {learningRate = 0.1, weightDecay = 0.0001, momentum = 0.9}
+local cnorm = 0.001 * optimState.learningRate --Gradient Clipping (c * Initial_Learning_Rate)
 
 local showlossevery = 100;
 local loss = 1;
@@ -89,15 +89,20 @@ function f(params)
 	--vdsrcnn:zeroGradParameters();
 	gradParams:zero()
 	
+	local imagein = s --Removing 0.5 to normalise the input images to [-0.5, 0.5] helps prevent gradient explosion
+	--if the image has values of [0, 1], all the gradients initially will be positive at the same time
+	--TODO: Better to substract with the mean of all images
+	
 	--Forward the image values
-	local out = vdsrcnn:forward(s)
+	local out = vdsrcnn:forward(imagein)
+	local diff = y:clone()
 	
 	--The loss is the difference between the output residual and the ground truth residual
-	loss = criterion:forward(out, y)
+	loss = criterion:forward(out, diff)
 	
 	--Compute the gradient
 	local lrate = optimState.learningRate
-	local grad_out = criterion:backward(out, y)
+	local grad_out = criterion:backward(out, diff)
 	
 	--Zero the previous gradient, and backpropagate the new gradient
 	local grad_in = vdsrcnn:backward(imagein, grad_out):clamp(-cnorm/lrate, cnorm/lrate)
@@ -109,6 +114,17 @@ function f(params)
 end
 
 local decreaseRate = 0.1
+
+--Saves a ground truth residual for testing
+local Truthdiff = thr:clone():csub(tlr)
+image.save("test/Truth.png", Truthdiff:add(0.5))
+
+
+--image.save("test/TestInput.png", x[1])
+--image.save("test/TestOutput.png", y[1])
+
+local Truthdiff2 = y[1]:clone():csub(x[1])
+image.save("test/TestGT1.png", Truthdiff2:add(0.5))
 
 local epoch = 0;
 
