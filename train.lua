@@ -51,6 +51,8 @@ local batchsize = 10 --Reduce the batch size if you have memory problems (C++ Ex
 local minibatch = (imagesn*4)/batchsize --#Of iterations before going through entire batch
 
 local hr, lr = dataproc.getImages(imagesn)
+
+
 local timg = image.load("train/test.png", 3, "float")
 local thr = image.rgb2y(timg):type(dtype)
 local tlr = image.rgb2y(image.scale(image.scale(timg, "*1/2"), thr:size(3), thr:size(2), "bicubic")):type(dtype)
@@ -67,9 +69,6 @@ end
 
 setBatch()
 
-
-
-
 --Initialise training variables
 
 params, gradParams = vdsrcnn:getParameters()
@@ -80,13 +79,16 @@ local cnorm = 0.001 * optimState.learningRate --Gradient Clipping (c * Initial_L
 local showlossevery = 100;
 local loss = 1;
 
+local ker = torch.ones(5)
+SSN = nn.SpatialSubtractiveNormalization(1,ker):type('torch.FloatTensor')
+
 --Training function
 function f(params)
 
 	--vdsrcnn:zeroGradParameters();
 	gradParams:zero()
 	
-	local imagein = x
+	local imagein = SSN:forward(x:type('torch.FloatTensor')):type(dtype) --preprocess using SpatialSubtractiveNormalization
 	
 	--Forward the image values
 	local out = vdsrcnn:forward(imagein)
@@ -117,6 +119,9 @@ image.save("test/Truth.png", Truthdiff:add(0.5))
 
 --image.save("test/TestInput.png", x[1])
 --image.save("test/TestOutput.png", y[1])
+
+local Truthinput = SSN:forward(x[1]:type('torch.FloatTensor'))
+image.save("test/TestGI1.png", Truthinput:add(0.5))
 
 local Truthdiff2 = y[1]:clone():csub(x[1])
 image.save("test/TestGT1.png", Truthdiff2:add(0.5))

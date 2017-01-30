@@ -27,7 +27,11 @@ local trainImg = image.scale(smallImg, "*2", "bicubic")
 
 local trainLRY = image.rgb2y(trainImg):type(dtype)
 local trainLR = image.rgb2yuv(trainImg):type(dtype)
-local trainDiff = vdsrcnn:forward(trainLRY)
+
+local ker = torch.ones(5)
+local SSN = nn.SpatialSubtractiveNormalization(1,ker):type(dtype)
+
+local trainDiff = vdsrcnn:forward(SSN:forward(trainLRY))
 
 local trainSR = trainLR
 
