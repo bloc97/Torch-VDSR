@@ -117,11 +117,11 @@ local Truthdiff = thr:clone():csub(tlr)
 image.save("test/Truth.png", Truthdiff:add(0.5))
 
 
-image.save("test/TestInput.png", x[1])
-image.save("test/TestOutput.png", y[1])
+--image.save("test/TestInput.png", x[1])
+--image.save("test/TestOutput.png", y[1])
 
 local Truthdiff2 = y[1]:clone():csub(x[1])
-image.save("test/TestGT.png", Truthdiff2:add(0.5))
+image.save("test/TestGT1.png", Truthdiff2:add(0.5))
 
 local epoch = 0;
 
@@ -152,7 +152,7 @@ for iter = 1, 30000 do
 	if (iter%minibatch == minibatch-1) then
 		epoch = epoch+1
 	end
-	setBatch(iter)
+	setBatch()
 
 end
 
