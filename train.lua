@@ -47,7 +47,7 @@ function TableToTensor(table)
 end
 
 local imagesn = 12 --Number of images in the folder ./train/
-local batchsize = 10 --Reduce the batch size if you have memory problems (C++ Exception or Out of memory error)
+local batchsize = 48 --Reduce the batch size if you have memory problems (C++ Exception or Out of memory error)
 local minibatch = (imagesn*4)/batchsize --#Of iterations before going through entire batch
 
 local hr, lr = dataproc.getImages(imagesn)
@@ -62,7 +62,7 @@ local y;
 
 
 function setBatch()
-	ay, ax, as = dataproc.getBatch(hr, lr, n, w, h)
+	ay, ax, as = dataproc.getBatch(hr, lr, batchsize)
 	x = TableToTensor(ax):type(dtype)
 	y = TableToTensor(ay):type(dtype)
 	s = TableToTensor(as):type(dtype)
@@ -77,8 +77,8 @@ setBatch()
 
 params, gradParams = vdsrcnn:getParameters()
 
-local optimState = {learningRate = 0.1, weightDecay = 0.0001, momentum = 0.9}
-local cnorm = 0.001 * optimState.learningRate --Gradient Clipping (c * Initial_Learning_Rate)
+local optimState = {learningRate = 0.01, weightDecay = 0.01, momentum = 0.9}
+local cnorm = 0.01 * optimState.learningRate --Gradient Clipping (c * Initial_Learning_Rate)
 
 local showlossevery = 100;
 local loss = 1;
@@ -116,15 +116,15 @@ end
 local decreaseRate = 0.1
 
 --Saves a ground truth residual for testing
-local Truthdiff = thr:clone():csub(tlr)
-image.save("test/Truth.png", Truthdiff:add(0.5))
+local Truth = thr:clone()
+image.save("test/Truth.png", Truth)
 
 
 --image.save("test/TestInput.png", x[1])
 --image.save("test/TestOutput.png", y[1])
 
-local Truthdiff2 = y[1]:clone():csub(x[1])
-image.save("test/TestGT1.png", Truthdiff2:add(0.5))
+local Truth2 = y[1]:clone()
+image.save("test/TestGT1.png", Truth2)
 
 local epoch = 0;
 
