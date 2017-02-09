@@ -25,7 +25,7 @@ local smallImg = image.load(name .. ".png", 3, "float")
 
 local inImg = image.scale(smallImg, "*2", "bicubic")
 
-local inDiff = vdsrcnn:forward(inImg:add(-0.5))
+local inDiff = vdsrcnn:forward(inImg:clone():add(-0.5))
 
 local outImg = inImg
 
