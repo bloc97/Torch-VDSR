@@ -8,7 +8,7 @@ local getBias = function(nnl)
 end
 
 local InConvolution = function()
-	return nn.SpatialConvolutionMM(1, 64, 3, 3, 1, 1, 1, 1)
+	return nn.SpatialConvolutionMM(3, 64, 3, 3, 1, 1, 1, 1)
 end
 
 local HiddenConvolution = function()
@@ -16,11 +16,11 @@ local HiddenConvolution = function()
 end
 
 local OutConvolution = function()
-	return nn.SpatialConvolutionMM(64, 1, 3, 3, 1, 1, 1, 1)
+	return nn.SpatialConvolutionMM(64, 3, 3, 3, 1, 1, 1, 1)
 end
 
 local nonLinear = function()
-	return nn.ELU(0.1, false) --ELU has better convergence
+	return nn.ELU(0.3, false) --ELU has better convergence
 	--return nn.ReLU(true)
 end
 

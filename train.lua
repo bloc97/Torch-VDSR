@@ -52,8 +52,8 @@ local minibatch = (imagesn*4)/batchsize --#Of iterations before going through en
 
 local hr, lr = dataproc.getImages(imagesn)
 local timg = image.load("train/test.png", 3, "float")
-local thr = image.rgb2y(timg):type(dtype)
-local tlr = image.rgb2y(image.scale(image.scale(timg, "*1/2"), thr:size(3), thr:size(2), "bicubic")):type(dtype)
+local thr = timg:type(dtype)
+local tlr = image.scale(image.scale(timg, "*1/2"), thr:size(3), thr:size(2), "bicubic"):type(dtype)
 
 local x;
 local y;
@@ -74,7 +74,7 @@ setBatch()
 
 params, gradParams = vdsrcnn:getParameters()
 
-local optimState = {learningRate = 0.1, weightDecay = 0.0001, momentum = 0.9}
+local optimState = {learningRate = 0.05, weightDecay = 0.0001, momentum = 0.9}
 local cnorm = 0.001 * optimState.learningRate --Gradient Clipping (c * Initial_Learning_Rate)
 
 local showlossevery = 100;

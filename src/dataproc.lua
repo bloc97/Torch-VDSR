@@ -28,7 +28,7 @@ function dataproc.getImages(num)
 	for k=1, imagesn do --Image processing and data augmentation
 		
 		
-		local HRImg = image.rgb2y(image.load("train/" .. k .. ".png", 3, "float"))
+		local HRImg = image.load("train/" .. k .. ".png", 3, "float")
 		
 		local nchan, height, width = HRImg:size(1), HRImg:size(2), HRImg:size(3)
 		

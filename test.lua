@@ -23,15 +23,11 @@ vdsrcnn:type(dtype)
 
 local smallImg = image.load(name .. ".png", 3, "float")
 
-local trainImg = image.scale(smallImg, "*2", "bicubic")
+local inImg = image.scale(smallImg, "*2", "bicubic")
+local outImg = inImg:clone()
+local inDiff = vdsrcnn:forward(inImg:add(-0.5))
 
-local trainLRY = image.rgb2y(trainImg):type(dtype)
-local trainLR = image.rgb2yuv(trainImg):type(dtype)
-local trainDiff = vdsrcnn:forward(trainLRY:add(-0.5))
+outImg:add(inDiff)
 
-local trainSR = trainLR
-
-trainSR[1]:add(trainDiff[1])
-
-image.save(name .. "x2.png", image.yuv2rgb(trainSR))
+image.save(name .. "x2.png", outImg)
 
